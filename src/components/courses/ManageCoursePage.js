@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { connect } from "react-redux";
 import { loadCourses, saveCourse } from "../../redux/actions/courseActions";
 import { loadAuthors } from "../../redux/actions/authorActions";
@@ -7,6 +7,7 @@ import CourseForm from "./CourseForm";
 import { newCourse } from "../../../tools/mockData";
 import Spinner from "../common/Spinner";
 import { toast } from "react-toastify";
+import { Prompt } from "react-router-dom";
 
 export function ManageCoursePage({
   courses,
@@ -36,6 +37,14 @@ export function ManageCoursePage({
       });
     }
   }, [props.course]);
+
+  const checkUnsavedData = useCallback(() => {
+    const { title, authorId, category } = course;
+    if ((title || authorId || category) && !saving) {
+      return true;
+    }
+    return false;
+  }, [course]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -73,17 +82,25 @@ export function ManageCoursePage({
       });
   }
 
-  return authors.length === 0 ? (
-    <Spinner />
-  ) : (
-    <CourseForm
-      course={course}
-      errors={errors}
-      authors={authors}
-      onChange={handleChange}
-      onSave={handleSave}
-      saving={saving}
-    />
+  return (
+    <>
+      <Prompt
+        when={checkUnsavedData()}
+        message="Are you sure you want to leave this page?You have unsaved data."
+      />
+      {authors.length === 0 ? (
+        <Spinner />
+      ) : (
+        <CourseForm
+          course={course}
+          errors={errors}
+          authors={authors}
+          onChange={handleChange}
+          onSave={handleSave}
+          saving={saving}
+        />
+      )}
+    </>
   );
 }
 
