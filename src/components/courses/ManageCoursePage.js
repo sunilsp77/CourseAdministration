@@ -124,6 +124,7 @@ function mapStateToProps(state, ownProps) {
     slug && state.courses.length > 0
       ? getCourseBySlug(state.courses, slug)
       : newCourse;
+  course === null && ownProps.history.push("/pageNotFound");
   return {
     course,
     courses: state.courses,
